@@ -1,27 +1,36 @@
+"use client"
+
+import { useState } from "react"
 import ListBlock from "./components/ListBlock/listBlock"
 import styles from "./page.module.css"
+import Tab from "./components/tab/tab"
 
 export default function Ranking(){
+    const [activeIndex, setActiveIndex] = useState(0)
+
+    const rankingData = [
+        [
+            { rank_num: 1, point_count: 9999, file_name: "user_id.test", name: "PR TIMES", text: "PR TIMESの詳細情報1" },
+            { rank_num: 2, point_count: 7000, file_name: "user_id.test", name: "PR TIMES", text: "PR TIMESの詳細情報2" },
+            { rank_num: 3, point_count: 5000, file_name: "user_id.test", name: "PR TIMES", text: "PR TIMESの詳細情報3" }
+        ],
+        [
+            { rank_num: 1, point_count: 12000, file_name: "user_id.test", name: "Company A", text: "Company Aの詳細情報1" },
+            { rank_num: 2, point_count: 8000, file_name: "user_id.test", name: "Company A", text: "Company Aの詳細情報2" },
+            { rank_num: 3, point_count: 6000, file_name: "user_id.test", name: "Company A", text: "Company Aの詳細情報3" }
+        ]
+    ];
+
     return(
-        <div className={styles.wrapper}>
-            <ListBlock 
-                rank_num={1}
-                point_count={9999}
-                file_name="user_id.test"
-                name="PR TIMES"
-                text="株式会社PR TIMESは、東京都港区赤坂に本社を置く日本のPR会社で、2005年12月26日に設立されました。 主な事業内容は、プレスリリース配信サービス「PR TIMES」の運営であり、企業や官公庁、自治体などが作成したプレスリリースを広く配信しています。 また、カスタマーサポートツール「Tayori」やタスク・プロジェクト管理ツール「Jooto」など、広報・PR支援に関連するサービスも展開しています。 同社は「行動者発の情報が、人の心を揺さぶる時代へ」というミッションを掲げ、情報インフラとしての役割を果たすことを目指しています。 2024年7月には、利用企業数が10万社を突破しました。本社所在地は、〒107-0052 東京都港区赤坂1-11-44 赤坂インターシティ8Fです。 "/>
-            <ListBlock 
-                rank_num={2}
-                point_count={7000}
-                file_name="user_id.test"
-                name="PR TIMES"
-                text="株式会社PR TIMESは、東京都港区赤坂に本社を置く日本のPR会社で、2005年12月26日に設立されました。 主な事業内容は、プレスリリース配信サービス「PR TIMES」の運営であり、企業や官公庁、自治体などが作成したプレスリリースを広く配信しています。 また、カスタマーサポートツール「Tayori」やタスク・プロジェクト管理ツール「Jooto」など、広報・PR支援に関連するサービスも展開しています。 同社は「行動者発の情報が、人の心を揺さぶる時代へ」というミッションを掲げ、情報インフラとしての役割を果たすことを目指しています。 2024年7月には、利用企業数が10万社を突破しました。本社所在地は、〒107-0052 東京都港区赤坂1-11-44 赤坂インターシティ8Fです。 "/>
-            <ListBlock 
-                rank_num={3}
-                point_count={5000}
-                file_name="user_id.test"
-                name="PR TIMES"
-                text="株式会社PR TIMESは、東京都港区赤坂に本社を置く日本のPR会社で、2005年12月26日に設立されました。 主な事業内容は、プレスリリース配信サービス「PR TIMES」の運営であり、企業や官公庁、自治体などが作成したプレスリリースを広く配信しています。 また、カスタマーサポートツール「Tayori」やタスク・プロジェクト管理ツール「Jooto」など、広報・PR支援に関連するサービスも展開しています。 同社は「行動者発の情報が、人の心を揺さぶる時代へ」というミッションを掲げ、情報インフラとしての役割を果たすことを目指しています。 2024年7月には、利用企業数が10万社を突破しました。本社所在地は、〒107-0052 東京都港区赤坂1-11-44 赤坂インターシティ8Fです。 "/>
+    <div className={styles.ranking}>
+        <div className={styles.tab}>
+            <Tab activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
         </div>
+        <div className={styles.wrapper}>
+                {rankingData[activeIndex].map((data, index) => (
+                    <ListBlock key={index} {...data} />
+                ))}
+        </div>
+    </div>
     )
 }
