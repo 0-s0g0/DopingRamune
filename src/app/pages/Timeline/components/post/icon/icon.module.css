@@ -1,0 +1,23 @@
+.icon{
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.icon_box{
+    width: 32px;
+    height: 32px;
+}
+
+.icon_box svg{
+    width: 100%;
+    height: 100%;
+}
+
+.icon_data{
+}
+
+.icon_data p{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
