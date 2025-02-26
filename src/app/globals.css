@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --base-font-size: 1.2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,7 +15,48 @@
   }
 }
 
+html{
+  font-size: 75%; 
+}
+
+h1 {
+  font-size: 2.986rem;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 2.488rem; 
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 2.074rem; 
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 1.728rem; 
+  font-weight: bold;
+}
+
+h5 {
+  font-size: 1.44rem; 
+  font-weight: bold;
+}
+
+h6 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* 段落 */
+p {
+  font-size: 1rem; /* 12px */
+  line-height: 1.6; /* 読みやすくするために1.6倍 */
+}
+
 body {
+  font-size: 1rem;
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
