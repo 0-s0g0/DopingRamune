@@ -1,0 +1,8 @@
+.rank p{
+    font-size: 2.2em;
+    font-weight: bold;
+}
+
+.rank P span{
+    color: red;
+}
