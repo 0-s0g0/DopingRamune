@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import "./styles/destyle.css"
 
 import Header from "./components/header/header";
-import "./styles/destyle.css"
+import Fotter from "./components/footer/footer";
 import "./globals.css";
+import Footer from "./components/footer/footer";
 
 
 //localfontの指定
@@ -32,6 +34,7 @@ export default function RootLayout({
           <div className="w-screen pt-16 min-h-svh sm:w-[375px] sm:min-h-screen bg-mainbackground">
             {children}
           </div>
+          <Footer />
       </body>
     </html>
   );
