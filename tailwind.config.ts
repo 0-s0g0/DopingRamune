@@ -9,8 +9,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+  			mainbackground: '#fffafa',
+  			outbackground: '#D5C6C6',
+  			'pink-light': '#E4A0A0',
+  			'pink-dark': '#D5C6C6',
+  			'pink-white': '#ECE5E0',
+        'pink-black': '#412E43',
+        'pink-vivid':'#E8A6B4',
+        'base-black': '#030303',
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
       },
     },
   },
