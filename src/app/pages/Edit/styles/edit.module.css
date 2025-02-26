@@ -1,0 +1,125 @@
+/* styles/PosterEditor.module.css */
+.editorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: sans-serif;
+  }
+  
+  .toolbarSection {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+  }
+  
+  .toolGroup {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .toolGroup h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .toolGroup button {
+    margin-right: 5px;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .toolGroup button:hover {
+    background-color: #45a049;
+  }
+  
+  .canvas {
+    position: relative;
+    border: 2px solid #333;
+    background-color: white;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .editorObject {
+    position: absolute;
+    user-select: none;
+  }
+  
+  .selected {
+    outline: 2px dashed #00aaff;
+  }
+  
+  .resizeHandle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: 0;
+    right: 0;
+    background-color: #00aaff;
+    cursor: nwse-resize;
+  }
+  
+  .propertyPanel {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 300px;
+  }
+  
+  .propertyPanel h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .propertyPanel div {
+    margin-bottom: 10px;
+  }
+  
+  .propertyPanel label {
+    display: inline-block;
+    width: 100px;
+    margin-right: 10px;
+  }
+  
+  .propertyPanel input[type="text"] {
+    width: 180px;
+    padding: 5px;
+  }
+  
+  .propertyPanel input[type="range"] {
+    width: 180px;
+  }
+  
+  .propertyPanel button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .propertyPanel button:hover {
+    background-color: #0b7dda;
+  }
+  
+  .propertyPanel button:last-child {
+    background-color: #f44336;
+  }
+  
+  .propertyPanel button:last-child:hover {
+    background-color: #d32f2f;
+  }
