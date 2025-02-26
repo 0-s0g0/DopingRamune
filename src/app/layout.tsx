@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 import Header from "./components/header/header";
+import "./styles/destyle.css"
 import "./globals.css";
 
 
