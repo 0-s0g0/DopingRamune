@@ -1,6 +1,6 @@
 CREATE TABLE users (
     id INT AUTO_INCREMENT, 
-    user_id INT, 
+    user_id TEXT, 
     possession_point INT, 
     assignment_point INT, 
     cheer_point INT,
