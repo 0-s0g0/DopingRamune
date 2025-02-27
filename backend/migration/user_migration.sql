@@ -1,9 +1,9 @@
 CREATE TABLE users (
     id INT AUTO_INCREMENT, 
     user_id TEXT, 
-    possession_point INT, 
-    assignment_point INT, 
-    cheer_point INT,
+    possession_point INT UNSIGNED NOT NULL DEFAULT 0, 
+    assignment_point INT UNSIGNED NOT NULL DEFAULT 0, 
+    cheer_point INT UNSIGNED NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
     PRIMARY KEY (id)
