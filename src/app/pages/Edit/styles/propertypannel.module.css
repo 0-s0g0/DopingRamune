@@ -1,0 +1,79 @@
+.propertyPanel {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 300px;
+    font-size:1rem;
+    gap:6px;
+    align-items:center;
+  }
+  
+  .propertyTitle{
+    display:flex;
+
+    font-size:2rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+
+  .items{
+    display:flex;
+    flex-direction:row;
+    align-items:left;
+    justify-content:center;
+    argin-bottom: 10px;
+    
+  }
+
+  
+  
+  .propertyPanel label {
+    display: inline-block;
+    width: 100px;
+    margin-right: 10px;
+  }
+  
+  .propertyPanel input[type="text"] {
+    width: 180px;
+    padding: 5px;
+  }
+  
+  .propertyPanel input[type="range"] {
+    width: 180px;
+    padding: 5px;
+  }
+    
+  .buttons1 {
+    margin-right: 10px;
+    padding: 1px 10px;
+    background-color: #ECE5E0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .buttons2 {
+    margin-right: 10px;
+    padding: 1px 10px;
+    background-color: #ffffdb;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .buttons3 {
+    margin-right: 10px;
+    padding: 1px 10px;
+    background-color: #dbedff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  .propertyPanel button:hover {
+    background-color: #0b7dda;
+  }
+
+
