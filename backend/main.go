@@ -80,7 +80,7 @@ func createPost(c *gin.Context) {
 	}
 
 	_, err := db.Exec(
-		"INSERT INTO posts (user_id, image, text) VALUES (?, ?, ?)",
+		"INSERT INTO posts (user_id, picture, text) VALUES (?, ?, ?)",
 		post.UserID, post.Picture, post.Text, 
 	)
 	if err != nil {
@@ -94,7 +94,7 @@ func createPost(c *gin.Context) {
 // getPosts は 新しい投稿順 (created_at DESC) で投稿一覧を返すハンドラ
 func getPosts(c *gin.Context) {
 	rows, err := db.Query(`
-		SELECT id, user_id, image, text, point, created_at
+		SELECT id, user_id, picture, text, assignment_point, created_at
 		FROM posts
 		ORDER BY created_at DESC
 	`)
