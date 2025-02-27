@@ -69,7 +69,7 @@ func cheer(c *gin.Context) {
 	var request struct {
 		UserID      string `json:"user_id"`
 		PostUserID  string `json:"post_user_id"`
-		PostID      int    `json:"post_id"`
+		ID          int    `json:"id"`
 		PointChange int    `json:"point_change"` // 変更するポイント数
 	}
 
@@ -81,7 +81,7 @@ func cheer(c *gin.Context) {
 
 	log.Printf("user_id: %s", request.UserID)
 	log.Printf("post_user_id: %s", request.PostUserID)
-	log.Printf("post_id: %d", request.PostID)
+	log.Printf("id: %d", request.ID)
 	log.Printf("point_change: %d", request.PointChange)
 
 	// トランザクション開始
@@ -92,10 +92,10 @@ func cheer(c *gin.Context) {
 	}
 
 	// `posts` テーブルの `assignment_point` を増加
-	_, err = tx.Exec("UPDATE posts SET assignment_point = assignment_point + ? WHERE user_id = ? AND post_id = ?", request.PointChange, request.PostUserID, request.PostID)
+	_, err = tx.Exec("UPDATE posts SET assignment_point = assignment_point + ? WHERE user_id = ? AND id = ?", request.PointChange, request.PostUserID, request.ID)
 	if err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update assignment_point"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user_id assignment_point"})
 		return
 	}
 
@@ -103,7 +103,7 @@ func cheer(c *gin.Context) {
 	_, err = tx.Exec("UPDATE users SET possession_point = possession_point - ? WHERE user_id = ?", request.PointChange, request.UserID)
 	if err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update possession_point"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user_id possession_point"})
 		return
 	}
 
@@ -111,7 +111,15 @@ func cheer(c *gin.Context) {
 	_, err = tx.Exec("UPDATE users SET cheer_point = cheer_point + ? WHERE user_id = ?", request.PointChange, request.UserID)
 	if err != nil {
 		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cheer_point"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user_id cheer_point"})
+		return
+	}
+
+	// `users` テーブルの `assignment_point` を増加
+	_, err = tx.Exec("UPDATE users SET assignment_point = assignment_point + ? WHERE user_id = ?", request.PointChange, request.PostUserID)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post_user_id assignment_point"})
 		return
 	}
 
