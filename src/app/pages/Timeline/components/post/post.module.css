@@ -1,0 +1,36 @@
+:root{
+    --post-width: 90%;
+}
+
+.post{
+    width: 100%;
+    height: auto;
+}
+
+.wrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+.alignment{
+    width: var(--post-width);
+    margin: 0 auto;
+}
+
+.thumbnail{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.context{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+}
+
+.icon_wrapper{
+    display: flex;
+    justify-content: start;
+    gap: 1rem;
+}
