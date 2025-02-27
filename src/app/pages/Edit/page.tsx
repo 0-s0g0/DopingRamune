@@ -3,11 +3,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './styles/edit.module.css';
 
-// 編集可能なオブジェクトの型定義
-type ObjectType = 'text' | 'image' | 'shape';
-type ShapeType = 'rectangle' | 'circle' | 'triangle';
+import Toolbar from './components/Toolbar';
+import ObjectList from './components/ObjectList';
+import Canvas from './components/Canvas';
+import PropertyPanel from './components/PropertyPanel';
 
-interface EditorObject {
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileImage} from "@fortawesome/free-solid-svg-icons";
+
+
+
+
+// 編集可能なオブジェクトの型定義
+export type ObjectType = 'text' | 'image' | 'shape';
+export type ShapeType = 'rectangle' | 'circle' | 'triangle';
+
+export interface EditorObject {
   id: string;
   type: ObjectType;
   x: number;
@@ -37,6 +48,7 @@ const PosterEditor: React.FC = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [showObjectList, setShowObjectList] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+
 
   // 背景画像のアップロード処理
   const handleBackgroundUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,41 +150,6 @@ const PosterEditor: React.FC = () => {
     }
   };
 
-  // オブジェクトの選択
-  const selectObject = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedObject(id);
-  };
-
-  // キャンバスクリック時の処理（選択解除）
-  const handleCanvasClick = () => {
-    setSelectedObject(null);
-  };
-
-  // ドラッグ開始
-  const startDrag = (e: React.MouseEvent) => {
-    if (!selectedObject) return;
-    e.stopPropagation();
-    setIsDragging(true);
-    
-    const clientRect = (e.target as HTMLElement).getBoundingClientRect();
-    setDragStart({
-      x: e.clientX - clientRect.left,
-      y: e.clientY - clientRect.top,
-    });
-  };
-
-  // リサイズ開始
-  const startResize = (e: React.MouseEvent) => {
-    if (!selectedObject) return;
-    e.stopPropagation();
-    setIsResizing(true);
-    setDragStart({
-      x: e.clientX,
-      y: e.clientY,
-    });
-  };
-
   // マウス移動時の処理
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging && !isResizing) return;
@@ -212,77 +189,6 @@ const PosterEditor: React.FC = () => {
     }
 
     newObjects[objectIndex] = obj;
-    setObjects(newObjects);
-  };
-
-  // マウスアップ時の処理
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setIsResizing(false);
-  };
-
-  // テキスト内容の変更
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    const objectIndex = objects.findIndex(obj => obj.id === id);
-    if (objectIndex === -1) return;
-
-    const newObjects = [...objects];
-    newObjects[objectIndex] = {
-      ...newObjects[objectIndex],
-      content: e.target.value,
-    };
-    setObjects(newObjects);
-  };
-
-  // オブジェクト名の変更
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    const objectIndex = objects.findIndex(obj => obj.id === id);
-    if (objectIndex === -1) return;
-
-    const newObjects = [...objects];
-    newObjects[objectIndex] = {
-      ...newObjects[objectIndex],
-      name: e.target.value,
-    };
-    setObjects(newObjects);
-  };
-
-  // 色の変更
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    const objectIndex = objects.findIndex(obj => obj.id === id);
-    if (objectIndex === -1) return;
-
-    const newObjects = [...objects];
-    newObjects[objectIndex] = {
-      ...newObjects[objectIndex],
-      color: e.target.value,
-    };
-    setObjects(newObjects);
-  };
-
-  // 背景色の変更
-  const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    const objectIndex = objects.findIndex(obj => obj.id === id);
-    if (objectIndex === -1) return;
-
-    const newObjects = [...objects];
-    newObjects[objectIndex] = {
-      ...newObjects[objectIndex],
-      backgroundColor: e.target.value,
-    };
-    setObjects(newObjects);
-  };
-
-  // フォントサイズの変更
-  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
-    const objectIndex = objects.findIndex(obj => obj.id === id);
-    if (objectIndex === -1) return;
-
-    const newObjects = [...objects];
-    newObjects[objectIndex] = {
-      ...newObjects[objectIndex],
-      fontSize: parseInt(e.target.value),
-    };
     setObjects(newObjects);
   };
 
@@ -360,6 +266,19 @@ const PosterEditor: React.FC = () => {
     setSelectedObject(null);
   };
 
+  // プロパティ変更ハンドラー
+  const handlePropertyChange = (id: string, property: string, value: any) => {
+    const objectIndex = objects.findIndex(obj => obj.id === id);
+    if (objectIndex === -1) return;
+
+    const newObjects = [...objects];
+    newObjects[objectIndex] = {
+      ...newObjects[objectIndex],
+      [property]: value,
+    };
+    setObjects(newObjects);
+  };
+
   // マウスイベントの設定と解除
   useEffect(() => {
     const handleGlobalMouseUp = () => {
@@ -373,308 +292,62 @@ const PosterEditor: React.FC = () => {
     };
   }, []);
 
-  // 図形レンダリング関数
-  const renderShape = (obj: EditorObject) => {
-    if (obj.shapeType === 'rectangle') {
-      return (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: obj.backgroundColor,
-            border: `2px solid ${obj.color}`,
-          }}
-        />
-      );
-    } else if (obj.shapeType === 'circle') {
-      return (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: obj.backgroundColor,
-            border: `2px solid ${obj.color}`,
-            borderRadius: '50%',
-          }}
-        />
-      );
-    } else if (obj.shapeType === 'triangle') {
-      return (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              width: '0',
-              height: '0',
-              borderLeft: `${obj.width / 2}px solid transparent`,
-              borderRight: `${obj.width / 2}px solid transparent`,
-              borderBottom: `${obj.height}px solid ${obj.backgroundColor}`,
-              position: 'absolute',
-            }}
-          />
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // オブジェクト種類の表示名を取得
-  const getObjectTypeName = (obj: EditorObject): string => {
-    if (obj.type === 'text') return 'テキスト';
-    if (obj.type === 'image') return '画像';
-    if (obj.type === 'shape') {
-      if (obj.shapeType === 'rectangle') return '四角形';
-      if (obj.shapeType === 'circle') return '円';
-      if (obj.shapeType === 'triangle') return '三角形';
-    }
-    return 'オブジェクト';
-  };
-
   return (
     <div className={styles.editorContainer}>
-      <h1>ポスター編集ツール</h1>
-      
-      <div className={styles.toolbarSection}>
-        <div className={styles.toolGroup}>
-          <h3>背景</h3>
-          <input type="file" accept="image/*" onChange={handleBackgroundUpload} />
-        </div>
+      <div>Edit your Dream Image!</div>      
+
         
-        <div className={styles.toolGroup}>
-          <h3>オブジェクト追加</h3>
-          <button onClick={addText}>テキスト追加</button>
-          <button onClick={() => addShape('rectangle')}>四角形追加</button>
-          <button onClick={() => addShape('circle')}>円追加</button>
-          <button onClick={() => addShape('triangle')}>三角形追加</button>
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-        </div>
-        
-        <div className={styles.toolGroup}>
-          <h3>レイヤー管理</h3>
-          <button onClick={() => setShowObjectList(!showObjectList)}>
-            {showObjectList ? 'オブジェクト一覧を隠す' : 'オブジェクト一覧を表示'}
-          </button>
-        </div>
-      </div>
+
       
-      {showObjectList && (
-        <div className={styles.objectListContainer}>
-          <h3>オブジェクト一覧（上が前面、下が背面）</h3>
-          <div className={styles.objectList}>
-            {[...objects]
-              .sort((a, b) => b.zIndex - a.zIndex) // zIndexの降順（大きい値＝前面が上）
-              .map((obj) => (
-                <div 
-                  key={obj.id} 
-                  className={`${styles.objectListItem} ${selectedObject === obj.id ? styles.selectedListItem : ''}`}
-                  onClick={() => setSelectedObject(obj.id)}
-                >
-                  <div className={styles.objectTypeIcon}>
-                    {obj.type === 'text' && 'T'}
-                    {obj.type === 'image' && '🖼️'}
-                    {obj.type === 'shape' && obj.shapeType === 'rectangle' && '■'}
-                    {obj.type === 'shape' && obj.shapeType === 'circle' && '●'}
-                    {obj.type === 'shape' && obj.shapeType === 'triangle' && '▲'}
-                  </div>
-                  <div className={styles.objectName}>
-                    {obj.name || getObjectTypeName(obj)}
-                  </div>
-                  <div className={styles.objectListButtons}>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moveObjectUp(obj.id);
-                      }}
-                      disabled={obj.zIndex === Math.max(...objects.map(o => o.zIndex))}
-                      title="上へ移動（前面へ）"
-                    >
-                      ↑
-                    </button>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moveObjectDown(obj.id);
-                      }}
-                      disabled={obj.zIndex === Math.min(...objects.map(o => o.zIndex))}
-                      title="下へ移動（背面へ）"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
+      
       
       <div className={styles.editorWorkspace}>
-        <div 
-          ref={canvasRef}
-          className={styles.canvas}
-          style={{
-            width: `${CANVAS_SIZE}px`,
-            height: `${CANVAS_SIZE}px`,
-            backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-          onClick={handleCanvasClick}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-        >
-          {objects
-            .sort((a, b) => a.zIndex - b.zIndex) // zIndexの昇順でレンダリング
-            .map((obj) => (
-              <div
-                key={obj.id}
-                className={`${styles.editorObject} ${selectedObject === obj.id ? styles.selected : ''}`}
-                style={{
-                  left: `${obj.x}px`,
-                  top: `${obj.y}px`,
-                  width: `${obj.width}px`,
-                  height: `${obj.height}px`,
-                  zIndex: obj.zIndex,
-                  cursor: isDragging ? 'grabbing' : 'grab',
-                }}
-                onClick={(e) => selectObject(obj.id, e)}
-                onMouseDown={startDrag}
-              >
-                {obj.type === 'text' && (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      color: obj.color,
-                      fontSize: `${obj.fontSize}px`,
-                      backgroundColor: obj.backgroundColor,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      overflow: 'hidden',
-                      textAlign: 'center',
-                      padding: '2px',
-                    }}
-                  >
-                    {obj.content}
-                  </div>
-                )}
-                
-                {obj.type === 'image' && (
-                  <img
-                    src={obj.imageUrl}
-                    alt="アップロード画像"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
-                
-                {obj.type === 'shape' && renderShape(obj)}
-                
-                {selectedObject === obj.id && (
-                  <div
-                    className={styles.resizeHandle}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      startResize(e);
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-        </div>
+        <Canvas 
+          objects={objects}
+          backgroundImage={backgroundImage}
+          canvasRef={canvasRef}
+          selectedObject={selectedObject}
+          setSelectedObject={setSelectedObject}
+          isDragging={isDragging}
+          setIsDragging={setIsDragging}
+          dragStart={dragStart}
+          setDragStart={setDragStart}
+          isResizing={isResizing}
+          setIsResizing={setIsResizing}
+          handleMouseMove={handleMouseMove}
+          CANVAS_SIZE={CANVAS_SIZE}
+        />
         
         {selectedObject && (
-          <div className={styles.propertyPanel}>
-            <h3>プロパティ</h3>
-            
-            <div>
-              <label>名前:</label>
-              <input
-                type="text"
-                value={objects.find(obj => obj.id === selectedObject)?.name || ''}
-                onChange={(e) => handleNameChange(e, selectedObject)}
-              />
-            </div>
-            
-            {objects.find(obj => obj.id === selectedObject)?.type === 'text' && (
-              <>
-                <div>
-                  <label>テキスト:</label>
-                  <input
-                    type="text"
-                    value={objects.find(obj => obj.id === selectedObject)?.content || ''}
-                    onChange={(e) => handleTextChange(e, selectedObject)}
-                  />
-                </div>
-                <div>
-                  <label>フォントサイズ:</label>
-                  <input
-                    type="range"
-                    min="8"
-                    max="72"
-                    value={objects.find(obj => obj.id === selectedObject)?.fontSize || 16}
-                    onChange={(e) => handleFontSizeChange(e, selectedObject)}
-                  />
-                </div>
-              </>
-            )}
-            
-            {(objects.find(obj => obj.id === selectedObject)?.type === 'text' || 
-              objects.find(obj => obj.id === selectedObject)?.type === 'shape') && (
-              <>
-                <div>
-                  <label>色:</label>
-                  <input
-                    type="color"
-                    value={objects.find(obj => obj.id === selectedObject)?.color || '#000000'}
-                    onChange={(e) => handleColorChange(e, selectedObject)}
-                  />
-                </div>
-                <div>
-                  <label>背景色:</label>
-                  <input
-                    type="color"
-                    value={objects.find(obj => obj.id === selectedObject)?.backgroundColor || '#ffffff'}
-                    onChange={(e) => handleBgColorChange(e, selectedObject)}
-                  />
-                </div>
-              </>
-            )}
-            
-            <div>
-              <label>レイヤー:</label>
-              <div className={styles.zIndexButtons}>
-                <button onClick={() => bringToFront(selectedObject)} title="最前面へ">
-                  ⬆️ 最前面
-                </button>
-                <button onClick={() => moveObjectUp(selectedObject)} title="1つ前へ">
-                  ↑ 前へ
-                </button>
-                <button onClick={() => moveObjectDown(selectedObject)} title="1つ後ろへ">
-                  ↓ 後ろへ
-                </button>
-                <button onClick={() => sendToBack(selectedObject)} title="最背面へ">
-                  ⬇️ 最背面
-                </button>
-              </div>
-            </div>
-            
-            <button 
-              className={styles.deleteButton}
-              onClick={() => deleteObject(selectedObject)}>
-              削除
-            </button>
-          </div>
+          <PropertyPanel 
+            selectedObject={selectedObject}
+            objects={objects}
+            handlePropertyChange={handlePropertyChange}
+            bringToFront={bringToFront}
+            moveObjectUp={moveObjectUp}
+            moveObjectDown={moveObjectDown}
+            sendToBack={sendToBack}
+            deleteObject={deleteObject}
+          />
         )}
       </div>
+      <Toolbar 
+          handleBackgroundUpload={handleBackgroundUpload}
+          addText={addText}
+          addShape={addShape}
+          handleImageUpload={handleImageUpload}
+          showObjectList={showObjectList}
+          setShowObjectList={setShowObjectList}
+        />
+        {showObjectList && (
+        <ObjectList 
+          objects={objects}
+          selectedObject={selectedObject}
+          setSelectedObject={setSelectedObject}
+          moveObjectUp={moveObjectUp}
+          moveObjectDown={moveObjectDown}
+        />
+      )}
     </div>
   );
 };
