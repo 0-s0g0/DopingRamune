@@ -10,7 +10,7 @@ import Canvas from './components/Canvas';
 import PropertyPanel from './components/PropertyPanel';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileImage} from "@fortawesome/free-solid-svg-icons";
+import { faShare} from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -328,7 +328,7 @@ const PosterEditor: React.FC = () => {
           CANVAS_SIZE={CANVAS_SIZE}
         />
 
-        <button onClick={handleSaveAsImage}>画像として保存</button>
+       
         
         {selectedObject && (
           <PropertyPanel 
@@ -343,6 +343,7 @@ const PosterEditor: React.FC = () => {
           />
         )}
       </div>
+      <div className={styles.buttons}>
       <Toolbar 
           handleBackgroundUpload={handleBackgroundUpload}
           addText={addText}
@@ -351,6 +352,9 @@ const PosterEditor: React.FC = () => {
           showObjectList={showObjectList}
           setShowObjectList={setShowObjectList}
         />
+         <button className={styles.savebutton} onClick={handleSaveAsImage}><FontAwesomeIcon icon={faShare} /></button>
+         </div>
+        
         {showObjectList && (
         <ObjectList 
           objects={objects}
