@@ -60,3 +60,38 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* 花びらのアニメーション */
+@keyframes flutter {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.sakura {
+  position: absolute;
+  top: -5vh;
+  width: 20px;
+  height: 20px;
+  background-color: pink;
+  clip-path: circle(50%);
+  animation: flutter 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.sakura:nth-child(odd) {
+  animation-duration: 6s;
+  animation-delay: -2s;
+}
+
+.sakura:nth-child(even) {
+  animation-duration: 7s;
+  animation-delay: -1s;
+}
+
