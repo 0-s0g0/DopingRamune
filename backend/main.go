@@ -14,33 +14,33 @@ import (
 var db *sql.DB
 
 type Post struct {
-	ID              int            `json:"id"`
-	UserID          sql.NullString `json:"user_id"`
-	PostID          int            `json:"post_id"`
-	Picture         string         `json:"picture"`
-	Text            string         `json:"text"`
-	AssignmentPoint int            `json:"assignment_point"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
+	ID              int       `json:"id"`
+	UserID          string    `json:"user_id"`
+	PostID          int       `json:"post_id"`
+	Picture         string    `json:"picture"`
+	Text            string    `json:"text"`
+	AssignmentPoint int       `json:"assignment_point"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 type User struct {
-	ID              int            `json:"id"`
-	UserID          sql.NullString `json:"user_id"`
-	PossessionPoint int            `json:"possession_point"`
-	AssignmentPoint int            `json:"assignment_point"`
-	CheerPoint      int            `json:"cheer_point"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
+	ID              int       `json:"id"`
+	UserID          string    `json:"user_id"`
+	PossessionPoint int       `json:"possession_point"`
+	AssignmentPoint int       `json:"assignment_point"`
+	CheerPoint      int       `json:"cheer_point"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 type Reply struct {
-	ID        int            `json:"id"`
-	PostID    int            `json:"post_id"`
-	UserID    sql.NullString `json:"user_id"`
-	Comment   string         `json:"comment"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	ID        int       `json:"id"`
+	PostID    int       `json:"post_id"`
+	UserID    string    `json:"user_id"`
+	Comment   string    `json:"comment"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // connectDB は DSNを直書きして MySQL に接続する
@@ -83,6 +83,8 @@ func main() {
 	r.POST("/posts/:postID/replies", createReplyForPost)
 	r.GET("/posts/:postID/replies", getRepliesForPost)
 
+	// マイページ用情報取得エンドポイント
+	r.POST("/mypage", getInformationfromUserID)
 	// サーバー起動
 	r.Run(":8080")
 }
@@ -222,6 +224,88 @@ func cheer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Points updated successfully"})
 }
 
+// マイページ用情報取得関数
+func getInformationfromUserID(c *gin.Context) {
+
+	var request struct {
+		UserID string `json:"user_id"`
+	}
+
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON data"})
+		return
+	}
+
+	log.Printf("user_id: %s", request.UserID)
+	rows, err := db.Query(`
+        SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
+        FROM users
+        WHERE user_id = ? 
+    `, request.UserID)
+	if err != nil {
+		log.Println("Failed to query posts:", err) // ここで詳細を出力
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "failed to query posts",
+			"details": err.Error(), // デバッグ用に詳細を返す (本番は非表示推奨)
+		})
+		return
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.UserID, &user.PossessionPoint, &user.AssignmentPoint, &user.CheerPoint, &user.CreatedAt, &user.UpdatedAt); err != nil {
+			log.Fatal("Scan error:", err)
+		}
+		users = append(users, user)
+	}
+
+	// rows.Err() で iteration 中のエラーを確認
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Row iteration error"})
+		return
+	}
+
+	rows2, err := db.Query(`
+        SELECT id, user_id, text, assignment_point, created_at, updated_at
+        FROM posts
+        WHERE user_id = ?
+    `, request.UserID)
+	if err != nil {
+		log.Println("Failed to query posts:", err) // ここで詳細を出力
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "failed to query posts",
+			"details": err.Error(), // デバッグ用に詳細を返す (本番は非表示推奨)
+		})
+		return
+	}
+
+	var posts []Post
+	for rows2.Next() {
+		var p Post
+		if err := rows2.Scan(&p.ID, &p.UserID, &p.Text, &p.AssignmentPoint, &p.CreatedAt, &p.UpdatedAt); err != nil {
+			log.Println("Row iteration error:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "row iteration error",
+				"details": err.Error(),
+			})
+			return
+		}
+		posts = append(posts, p)
+	}
+	// rows.Err() で iteration 中のエラーを確認
+	if err := rows2.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Row iteration error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user":  users,
+		"posts": posts,
+	})
+}
+
 // ソート関数(投稿についたいいね順)
 func assignmentSort(c *gin.Context) {
 	//sql ソート
@@ -259,7 +343,7 @@ func assignmentSort(c *gin.Context) {
 
 // ソート関数(人に送ったいいね数順)
 func cheerSort(c *gin.Context) {
-	//sql ソート
+
 	rows, err := db.Query(`
     SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
     FROM users
