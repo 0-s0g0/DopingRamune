@@ -1,0 +1,7 @@
+.alignment{
+    display:flex;
+    flex-direction:column;
+    justify-content: start;
+    width:100%;
+}
+
