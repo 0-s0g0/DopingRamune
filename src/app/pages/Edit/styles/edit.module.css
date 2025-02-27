@@ -1,0 +1,167 @@
+/*  */
+.editorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-size:2rem;
+  }
+  
+  .toolbarSection {
+    display: flex;
+    gap:20px;
+    margin-bottom: 20px;
+  }
+  
+  .toolGroup {
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .toolGroup h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+
+  
+  .toolGroup button:hover {
+    background-color: #45a049;
+  }
+  
+  .canvas {
+    position: relative;
+    border: 2px solid #333;
+    background-color: white;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .editorObject {
+    position: absolute;
+    user-select: none;
+  }
+  
+  .selected {
+    outline: 2px dashed #00aaff;
+  }
+  
+  .resizeHandle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    bottom: 0;
+    right: 0;
+    background-color: #00aaff;
+    cursor: nwse-resize;
+  }
+  
+  
+
+  .toolbarSection {
+    cursor: pointer;
+    margin: 10px;
+    font-size: 1.5rem;
+    color: #333;
+    transition: color 0.2s;
+  }
+
+  .icon {
+    border: solid;
+    border-radius: 20px;
+    padding:10px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #333;
+    transition: color 0.2s;
+  }
+  
+  .toolbarSection .icon:hover {
+    color: #007bff;
+  }
+
+
+  .addGroup{
+    display:flex;
+    flex-direction:column;
+  }
+
+  .maintext{
+    font-size:1.5rem;
+  }
+
+   
+  
+  /* モーダルのスタイル */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .editorWorkspace{
+    display:flex;
+    flex-direction:column;
+
+  }
+  .modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 300px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .objectbutton{
+    background:#ffe5ff;
+  }
+
+  .objectbutton2{
+    background:#ffe5ff;
+    width:30%;
+    align-items:center;
+  }
+  .rectanglebox{
+    display:flex;
+    flex-direction:row;
+    gap:3px;
+  }
+
+  .savebutton{
+    border: solid;
+    border-radius: 10px;
+    padding:4px 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    width:40px;
+    color: #333;
+    transition: color 0.2s;
+    margin:10px;
+    background:#412E43;
+    color:white;
+
+  }
+
+  .buttons{
+    display:flex;
+  }
+  
