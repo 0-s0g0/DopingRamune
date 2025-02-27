@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './styles/edit.module.css';
+import html2canvas from 'html2canvas';
 
 import Toolbar from './components/Toolbar';
 import ObjectList from './components/ObjectList';
@@ -292,13 +293,22 @@ const PosterEditor: React.FC = () => {
     };
   }, []);
 
+  const handleSaveAsImage = async () => {
+    if (!canvasRef.current) return;
+    const canvas = await html2canvas(canvasRef.current, { backgroundColor: null });
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    // 画像をダウンロード
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'poster.png';
+    link.click();
+  };
+
   return (
     <div className={styles.editorContainer}>
       <div>Edit your Dream Image!</div>      
 
-        
-
-      
       
       
       <div className={styles.editorWorkspace}>
@@ -317,6 +327,8 @@ const PosterEditor: React.FC = () => {
           handleMouseMove={handleMouseMove}
           CANVAS_SIZE={CANVAS_SIZE}
         />
+
+        <button onClick={handleSaveAsImage}>画像として保存</button>
         
         {selectedObject && (
           <PropertyPanel 
