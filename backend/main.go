@@ -84,7 +84,7 @@ func main() {
 	r.GET("/posts/:postID/replies", getRepliesForPost)
 
 	// マイページ用情報取得エンドポイント
-	r.POST("/mypage", getInformationfromUserID)
+	r.GET("/api/users", getInformationfromUserID)
 	// サーバー起動
 	r.Run(":8080")
 }
@@ -227,21 +227,23 @@ func cheer(c *gin.Context) {
 // マイページ用情報取得関数
 func getInformationfromUserID(c *gin.Context) {
 
-	var request struct {
-		UserID string `json:"user_id"`
-	}
+	// var request struct {
+	// 	UserID string `json:"user_id"`
+	// }
 
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON data"})
-		return
-	}
+	// if err := c.BindJSON(&request); err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON data"})
+	// 	return
+	// }
 
-	log.Printf("user_id: %s", request.UserID)
+	UserID := c.Query("user_id")
+
+	log.Printf("user_id: %s", UserID)
 	rows, err := db.Query(`
         SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
         FROM users
         WHERE user_id = ? 
-    `, request.UserID)
+    `, UserID)
 	if err != nil {
 		log.Println("Failed to query posts:", err) // ここで詳細を出力
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -250,6 +252,7 @@ func getInformationfromUserID(c *gin.Context) {
 		})
 		return
 	}
+
 	defer rows.Close()
 
 	var users []User
@@ -271,7 +274,7 @@ func getInformationfromUserID(c *gin.Context) {
         SELECT id, user_id, text, assignment_point, created_at, updated_at
         FROM posts
         WHERE user_id = ?
-    `, request.UserID)
+    `, UserID)
 	if err != nil {
 		log.Println("Failed to query posts:", err) // ここで詳細を出力
 		c.JSON(http.StatusInternalServerError, gin.H{
