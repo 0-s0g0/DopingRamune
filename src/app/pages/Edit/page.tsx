@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './styles/edit.module.css';
 import html2canvas from 'html2canvas';
+import { useRouter } from 'next/navigation';
 
 import Toolbar from './components/Toolbar';
 import ObjectList from './components/ObjectList';
@@ -293,17 +294,27 @@ const PosterEditor: React.FC = () => {
     };
   }, []);
 
+  const router = useRouter();
+  
   const handleSaveAsImage = async () => {
     if (!canvasRef.current) return;
+
     const canvas = await html2canvas(canvasRef.current, { backgroundColor: null });
     const dataUrl = canvas.toDataURL('image/png');
-    
-    // 画像をダウンロード
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'poster.png';
-    link.click();
+
+    // API経由で画像を保存し、ファイル名を取得
+    const response = await fetch('/api/utils', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUrl }),
+    });
+
+    const { fileName } = await response.json();
+
+    // 画像ファイル名をURLクエリとして渡す
+    router.push(`/pages/createPost?fileName=${fileName}`);
   };
+    
 
   return (
     <div className={styles.editorContainer}>
