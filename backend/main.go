@@ -56,6 +56,12 @@ func main() {
 	// Gin のルーター作成
 	r := gin.Default()
 
+	// 投稿作成 (POST /posts)
+	r.POST("/posts", createPost)
+
+	// 投稿一覧 (GET /posts) - created_at の新しい順
+	r.GET("/posts", getPosts)
+
 	r.GET("/sort/assignment_point", assignmentSort)
 	r.GET("/sort/cheer_point", cheerSort)
 	// いいねエンドポイント
@@ -63,6 +69,56 @@ func main() {
 
 	// サーバー起動
 	r.Run(":8080")
+}
+
+// createPost は 新しい投稿をDBにINSERTするハンドラ
+func createPost(c *gin.Context) {
+	var post Post
+	if err := c.ShouldBindJSON(&post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	_, err := db.Exec(
+		"INSERT INTO posts (user_id, image, text) VALUES (?, ?, ?)",
+		post.UserID, post.Picture, post.Text, 
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to insert post"})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+// getPosts は 新しい投稿順 (created_at DESC) で投稿一覧を返すハンドラ
+func getPosts(c *gin.Context) {
+	rows, err := db.Query(`
+		SELECT id, user_id, image, text, point, created_at
+		FROM posts
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query posts"})
+		return
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var p Post
+		if err := rows.Scan(&p.ID, &p.UserID, &p.Picture, &p.Text, &p.AssignmentPoint, &p.CreatedAt); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan row"})
+			return
+		}
+		posts = append(posts, p)
+	}
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "row iteration error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
 }
 
 func cheer(c *gin.Context) {
