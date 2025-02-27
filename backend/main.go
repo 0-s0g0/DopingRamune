@@ -14,7 +14,7 @@ var db *sql.DB
 
 type Post struct {
 	ID              int       `json:"id"`
-	UserID          string    `json:"user_id"`
+	UserID          sql.NullString    `json:"user_id"`
 	PostID          int       `json:"post_id"`
 	Picture         string    `json:"picture"`
 	Text            string    `json:"text"`
@@ -25,7 +25,7 @@ type Post struct {
 
 type User struct {
 	ID              int       `json:"id"`
-	UserID          string    `json:"user_id"`
+	UserID          sql.NullString    `json:"user_id"`
 	PossessionPoint int       `json:"possession_point"`
 	AssignmentPoint int       `json:"assignment_point"`
 	CheerPoint      int       `json:"cheer_point"`
@@ -36,7 +36,7 @@ type User struct {
 type Reply struct {
 	ID        int       `json:"id"`
 	PostID    int       `json:"post_id"`
-	UserID    string    `json:"user_id"`
+	UserID    sql.NullString    `json:"user_id"`
 	Comment   string    `json:"comment"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -69,10 +69,10 @@ func main() {
 	//ソートエンドポイント
 
 	// 投稿作成 (POST /posts)
-	r.POST("/posts", createPost)
+	r.POST("/api/submit", createPost)
 
 	// 投稿一覧 (GET /posts) - created_at の新しい順
-	r.GET("/posts", getPosts)
+	r.GET("/pages/Timeline", getPosts)
 
 	r.GET("/sort/assignment_point", assignmentSort)
 	r.GET("/sort/cheer_point", cheerSort)
@@ -114,33 +114,47 @@ func createPost(c *gin.Context) {
 
 // getPosts は 新しい投稿順 (created_at DESC) で投稿一覧を返すハンドラ
 func getPosts(c *gin.Context) {
-	rows, err := db.Query(`
-		SELECT id, user_id, picture, text, assignment_point, created_at
-		FROM posts
-		ORDER BY created_at DESC
-	`)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query posts"})
-		return
-	}
-	defer rows.Close()
+    rows, err := db.Query(`
+        SELECT id, user_id, picture, text, assignment_point, created_at
+        FROM posts
+        ORDER BY created_at DESC
+    `)
+    if err != nil {
+        log.Println("Failed to query posts:", err) // ここで詳細を出力
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error":   "failed to query posts",
+            "details": err.Error(), // デバッグ用に詳細を返す (本番は非表示推奨)
+        })
+        return
+    }
+    defer rows.Close()
 
-	var posts []Post
-	for rows.Next() {
-		var p Post
-		if err := rows.Scan(&p.ID, &p.UserID, &p.Picture, &p.Text, &p.AssignmentPoint, &p.CreatedAt); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan row"})
-			return
-		}
-		posts = append(posts, p)
-	}
-	if err := rows.Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "row iteration error"})
-		return
-	}
+    var posts []Post
+    for rows.Next() {
+        var p Post
+        // スキャンエラーもログ出力
+        if err := rows.Scan(&p.ID, &p.UserID, &p.Picture, &p.Text, &p.AssignmentPoint, &p.CreatedAt); err != nil {
+            log.Println("Failed to scan row:", err)
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error":   "failed to scan row",
+                "details": err.Error(),
+            })
+            return
+        }
+        posts = append(posts, p)
+    }
+    if err := rows.Err(); err != nil {
+        log.Println("Row iteration error:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error":   "row iteration error",
+            "details": err.Error(),
+        })
+        return
+    }
 
-	c.JSON(http.StatusOK, posts)
+    c.JSON(http.StatusOK, posts)
 }
+
 
 // いいね関数
 func cheer(c *gin.Context) {
