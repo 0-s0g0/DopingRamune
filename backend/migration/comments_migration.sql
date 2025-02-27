@@ -1,6 +1,6 @@
 CREATE TABLE comments (
     id INT AUTO_INCREMENT, 
-    user_id INT, 
+    user_id TEXT, 
     comment_id INT, 
     commnet TEXT, 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
