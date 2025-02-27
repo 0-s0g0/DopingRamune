@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	"strconv"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -31,6 +31,15 @@ type User struct {
 	CheerPoint      int       `json:"cheer_point"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+type Reply struct {
+	ID        int       `json:"id"`
+	PostID    int       `json:"post_id"`
+	UserID    string    `json:"user_id"`
+	Comment   string    `json:"comment"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // connectDB は DSNを直書きして MySQL に接続する
@@ -70,6 +79,10 @@ func main() {
 	// いいねエンドポイント
 	r.POST("/cheer", cheer)
 
+	// 返信関連の新規エンドポイント
+	r.POST("/posts/:postID/replies", createReplyForPost)
+	r.GET("/posts/:postID/replies", getRepliesForPost)
+
 	// サーバー起動
 	r.Run(":8080")
 }
@@ -83,12 +96,16 @@ func createPost(c *gin.Context) {
 		return
 	}
 
-	_, err := db.Exec(
-		"INSERT INTO posts (user_id, picture, text) VALUES (?, ?, ?)",
-		post.UserID, post.Picture, post.Text, 
-	)
+	_, err := db.Exec("INSERT INTO posts (user_id, picture, text) VALUES (?, ?, ?)",
+    post.UserID, post.Picture, post.Text)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to insert post"})
+		// 失敗したINSERT内容をログに出力
+		log.Printf("Insert error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "failed to insert post",
+			// レスポンスにも詳細が必要ならこうする (本番環境では非表示推奨)
+			"details": err.Error(),
+		})
 		return
 	}
 
@@ -260,4 +277,76 @@ func cheerSort(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"users": users})
+}
+
+// createReplyForPost は特定の投稿(postID)に対する返信をDBにINSERTする
+func createReplyForPost(c *gin.Context) {
+	// URLパラメータから postID を取得し、intに変換
+	postIDParam := c.Param("postID")
+	postID, err := strconv.Atoi(postIDParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid postID"})
+		return
+	}
+
+	// リクエストボディから userID, comment 等を受け取る
+	var req struct {
+		UserID  string `json:"user_id"`
+		Comment string `json:"comment"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	// INSERT 実行
+	_, err = db.Exec(`
+		INSERT INTO replies (post_id, user_id, comment)
+		VALUES (?, ?, ?)
+	`, postID, req.UserID, req.Comment)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to insert reply"})
+		return
+	}
+
+	c.Status(http.StatusCreated) // 201
+}
+
+// getRepliesForPost は特定の投稿(postID)に紐づく返信一覧を返す
+func getRepliesForPost(c *gin.Context) {
+	postIDParam := c.Param("postID")
+	postID, err := strconv.Atoi(postIDParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid postID"})
+		return
+	}
+
+	rows, err := db.Query(`
+		SELECT id, post_id, user_id, comment, created_at, updated_at
+		FROM replies
+		WHERE post_id = ?
+		ORDER BY created_at ASC
+	`, postID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query replies"})
+		return
+	}
+	defer rows.Close()
+
+	var replies []Reply
+	for rows.Next() {
+		var r Reply
+		if err := rows.Scan(&r.ID, &r.PostID, &r.UserID, &r.Comment, &r.CreatedAt, &r.UpdatedAt); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to scan row"})
+			return
+		}
+		replies = append(replies, r)
+	}
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "row iteration error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"replies": replies})
 }
