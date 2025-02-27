@@ -56,6 +56,7 @@ func main() {
 	// Gin のルーター作成
 	r := gin.Default()
 
+	//ソートエンドポイント
 	r.GET("/sort/assignment_point", assignmentSort)
 	r.GET("/sort/cheer_point", cheerSort)
 	// いいねエンドポイント
@@ -65,6 +66,7 @@ func main() {
 	r.Run(":8080")
 }
 
+// いいね関数
 func cheer(c *gin.Context) {
 	var request struct {
 		UserID      string `json:"user_id"`
@@ -132,7 +134,9 @@ func cheer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Points updated successfully"})
 }
 
+// ソート関数(投稿についたいいね順)
 func assignmentSort(c *gin.Context) {
+	//sql ソート
 	rows, err := db.Query(`
         SELECT id, user_id, text, assignment_point, created_at, updated_at
         FROM posts
@@ -165,7 +169,9 @@ func assignmentSort(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"posts": posts})
 }
 
+// ソート関数(人に送ったいいね数順)
 func cheerSort(c *gin.Context) {
+	//sql ソート
 	rows, err := db.Query(`
     SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
     FROM users
@@ -194,6 +200,5 @@ func cheerSort(c *gin.Context) {
 		return
 	}
 
-	// JSON 形式で応答
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
