@@ -1,0 +1,9 @@
+CREATE TABLE comments (
+    id INT AUTO_INCREMENT, 
+    user_id TEXT, 
+    comment_id INT, 
+    commnet TEXT, 
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    PRIMARY KEY (id)
+    );
