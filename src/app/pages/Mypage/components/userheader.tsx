@@ -15,7 +15,7 @@ const Header: FC<HeaderProps> = ({
         <div className={styles.header}>
             <div className={styles.icon}>
                 <Image
-                    src={`/images/user/${user_id}.png`}
+                    src={`/images/user/user_id.test.png`}
                     width={32}
                     height={32}
                     alt={alt}
