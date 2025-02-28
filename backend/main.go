@@ -66,18 +66,16 @@ func main() {
 	// Gin のルーター作成
 	r := gin.Default()
 
-	//ソートエンドポイント
-
 	// 投稿作成 (POST /posts)
 	r.POST("/api/submit", createPost)
 
 	// 投稿一覧 (GET /posts) - created_at の新しい順
 	r.GET("/pages/Timeline", getPosts)
 
-	r.GET("/sort/assignment_point", assignmentSort)
-	r.GET("/pages/Ranking", cheerSort)
-	// いいねエンドポイント
-	r.POST("/cheer", cheer)
+	r.GET("/sort/assignment_point", sortAssignmentPoint)
+	r.GET("/pages/Ranking", sortCheerPoint)
+	// 応援ポイント変更エンドポイント
+	r.POST("/cheer", updateCheer)
 
 	// 返信関連の新規エンドポイント
 	r.POST("/posts/:postID/replies", createReplyForPost)
@@ -156,8 +154,8 @@ func getPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, posts)
 }
 
-// いいね関数
-func cheer(c *gin.Context) {
+// 応援ポイント数に関する更新を行うハンドラ
+func updateCheer(c *gin.Context) {
 	var request struct {
 		UserID      string `json:"user_id"`
 		PostUserID  string `json:"post_user_id"`
@@ -224,7 +222,7 @@ func cheer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Points updated successfully"})
 }
 
-// マイページ用情報取得関数
+// マイページ用のユーザ情報を取得するハンドラ
 func getInformationfromUserID(c *gin.Context) {
 
 	// var request struct {
@@ -309,8 +307,8 @@ func getInformationfromUserID(c *gin.Context) {
 	})
 }
 
-// ソート関数(投稿についたいいね順)
-func assignmentSort(c *gin.Context) {
+// ソートを行うハンドラ(投稿についたいいね順)
+func sortAssignmentPoint(c *gin.Context) {
 	//sql ソート
 	rows, err := db.Query(`
         SELECT id, user_id, text, assignment_point, created_at, updated_at
@@ -344,8 +342,8 @@ func assignmentSort(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"posts": posts})
 }
 
-// ソート関数(人に送ったいいね数順)
-func cheerSort(c *gin.Context) {
+// ソートを行うハンドラ(人に送ったいいね数順)
+func sortCheerPoint(c *gin.Context) {
 
 	rows, err := db.Query(`
     SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
