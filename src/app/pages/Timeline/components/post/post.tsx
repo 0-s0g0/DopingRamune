@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "./post.module.css"
 import Icon from "./icon/icon";
 import Thumbnail from "./thumbnail/thumbnail";
@@ -8,6 +7,7 @@ import { FC } from "react";
 interface PostProps{
     user_id: string;
     post_id: number;
+    picture: string;
     text: string;
     like_count: number;
     comment_count: number;
@@ -16,12 +16,15 @@ interface PostProps{
 const Post: FC<PostProps> = ({
     user_id,
     post_id,
+    picture,
     text,
     like_count,
     comment_count,
 }) => {
-    const thumbnail_file_name = String(post_id) + user_id;
-    console.log(thumbnail_file_name)
+    // const thumbnail_file_name = String(post_id) + user_id;
+    // console.log(thumbnail_file_name);
+    const thumbnail_file_name = picture;
+    console.log(thumbnail_file_name);
     return(
         <div className={styles.post}>
             <div className={styles.wrapper}>
