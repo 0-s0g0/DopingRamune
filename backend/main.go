@@ -73,7 +73,7 @@ func main() {
 	r.GET("/pages/Timeline/users", getPosts)
 
 	r.GET("/sort/assignment_point", sortAssignmentPoint)
-	r.GET("/pages/Ranking", sortCheerPoint)
+	r.GET("/api/ranking", sortCheerPoint)
 	// 応援ポイント変更エンドポイント
 	r.POST("/cheer", updateCheer)
 
@@ -315,7 +315,7 @@ func sortAssignmentPoint(c *gin.Context) {
 	rows, err := db.Query(`
         SELECT id, user_id, text, assignment_point, created_at, updated_at
         FROM posts
-        ORDER BY assignment_point DESC
+        ORDER BY assignment_point ASC
     `)
 
 	if err != nil {
@@ -350,7 +350,7 @@ func sortCheerPoint(c *gin.Context) {
 	rows, err := db.Query(`
     SELECT id, user_id, possession_point, assignment_point, cheer_point, created_at, updated_at
     FROM users
-    ORDER BY cheer_point DESC
+    ORDER BY cheer_point ASC
     `)
 
 	if err != nil {
