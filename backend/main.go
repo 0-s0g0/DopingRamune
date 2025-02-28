@@ -70,7 +70,7 @@ func main() {
 	r.POST("/api/submit", createPost)
 
 	// 投稿一覧 (GET /posts) - created_at の新しい順
-	r.GET("/pages/Timeline", getPosts)
+	r.GET("/pages/Timeline/users", getPosts)
 
 	r.GET("/sort/assignment_point", sortAssignmentPoint)
 	r.GET("/pages/Ranking", sortCheerPoint)
@@ -87,22 +87,24 @@ func main() {
 	r.Run(":8080")
 }
 
-// createPost は 新しい投稿をDBにINSERTするハンドラ
 func createPost(c *gin.Context) {
-	var post Post
-	if err := c.ShouldBindJSON(&post); err != nil {
+	var req struct {
+		UserID    string `json:"user_id"`
+		ImagePath string `json:"picture"` // クライアントが送信するキー
+		Text      string `json:"text"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
+	// ImagePath を Picture として利用する
 	_, err := db.Exec("INSERT INTO posts (user_id, picture, text) VALUES (?, ?, ?)",
-		post.UserID, post.Picture, post.Text)
+		req.UserID, req.ImagePath, req.Text)
 	if err != nil {
-		// 失敗したINSERT内容をログに出力
 		log.Printf("Insert error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to insert post",
-			// レスポンスにも詳細が必要ならこうする (本番環境では非表示推奨)
+			"error":   "failed to insert post",
 			"details": err.Error(),
 		})
 		return

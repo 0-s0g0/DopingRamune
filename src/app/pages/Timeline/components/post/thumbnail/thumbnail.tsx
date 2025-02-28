@@ -11,10 +11,11 @@ const Thumbnail: FC<ThumbnailProps> = ({
     file_name,
     alt
 }) => {
+    console.log(file_name);
     return(
         <div className={styles.thumbnail}>
             <Image
-                src={`/images/post/${file_name}.png`}
+                src={`/images/${file_name}`}
                 width={600}
                 height={600}
                 alt={alt}

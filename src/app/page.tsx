@@ -16,7 +16,8 @@ export default function Start() {
   // ユーザー名が入力されたとき
   const handleSubmit = () => {
     if (username) {
-      router.push(`/pages/Timeline?username=${encodeURIComponent(username)}`);
+      window.localStorage.setItem("username", username);
+      router.push(`/pages/Timeline`);
     } else {
       alert("ユーザー名を入力してください");
     }
