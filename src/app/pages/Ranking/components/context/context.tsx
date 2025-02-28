@@ -17,7 +17,7 @@ const Context: FC<ListBlockProps> = ({
         <div className={styles.wrapper}>
             <div className={styles.thumbnail}>
                 <Image
-                    src={`/images/user/${file_name}.png`}
+                    src={`/images/user/user_id.test.png`}
                     width={1000}
                     height={1000}
                     alt={name} />
@@ -25,9 +25,9 @@ const Context: FC<ListBlockProps> = ({
             <div className={styles.name}>
                 <h3>{name}</h3>
             </div>
-            <div className={styles.text}>
+            {/* <div className={styles.text}>
                 <p>{text}</p>
-            </div>
+            </div> */}
         </div>
     )
 }
