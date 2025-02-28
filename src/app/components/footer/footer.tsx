@@ -21,7 +21,7 @@ const Footer = () => (
     <Link href={"/pages/Ranking"} >
         <FontAwesomeIcon icon={faRankingStar} className="w-10 h-10"/>
     </Link>
-    <Link href={"/pages/Mypage"} >
+    <Link href={"/pages/Mypage?user_id=qwertyuiop"} >
         <FontAwesomeIcon icon={faUser} className="w-10 h-10"/>
     </Link>
   </div>
